@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Dissection: Fetal Pig</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; background:#f0f0f0; margin:0; padding:16px; display:flex; justify-content:center; }
+  .lab { width:100%; max-width:1000px; background:linear-gradient(135deg,#10344b 0%,#1c5270 50%,#447b99 100%);
+         border-radius:12px; padding:20px; color:#fff; box-shadow:0 10px 30px rgba(0,0,0,.3); }
+  h1 { font-size:21px; text-align:center; text-transform:uppercase; margin:0 0 14px; }
+  .main { display:flex; gap:16px; align-items:flex-start; }
+  .stage { flex:0 0 56%; background:#fff; border-radius:10px; padding:8px; }
+  .panel { flex:1; min-width:0; }
+  svg { display:block; width:100%; height:auto; touch-action:none; user-select:none; }
+  #forceps { cursor:grab; } #forceps.drag { cursor:grabbing; }
+  .organ.sel { filter:drop-shadow(0 0 5px #ffd54f); }
+  .ring { fill:none; stroke:#ffd54f; stroke-width:3; transform-box:fill-box; transform-origin:center; animation:pulse 1.2s ease-out infinite; }
+  @keyframes pulse { 0%{transform:scale(.6);opacity:1} 100%{transform:scale(1.6);opacity:0} }
+  @media (prefers-reduced-motion:reduce){ .ring{animation:none} }
+  .steps { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+  .step { font-size:13px; padding:6px 12px; border-radius:14px; background:rgba(255,255,255,.14); }
+  .step.done { background:#4caf50; }
+  .msg { font-size:15px; font-weight:bold; min-height:66px; margin-bottom:10px; line-height:1.35; }
+  .box { background:rgba(255,255,255,.12); border-radius:8px; padding:12px 14px; margin-bottom:12px; font-size:14px; }
+  .box.hide { display:none; }
+  .box div { margin:5px 0; } .sw { display:inline-block; width:14px; height:14px; border-radius:3px; margin-right:8px; vertical-align:-2px; }
+  #oinfo { background:rgba(0,0,0,.2); border-radius:6px; padding:9px 12px; min-height:60px; margin:8px 0; }
+  #chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { background:rgba(255,255,255,.18); padding:4px 9px; font-size:12px; border-radius:12px; }
+  .chip.seen { background:#4caf50; }
+  .btns { display:flex; gap:8px; flex-wrap:wrap; }
+  button { background:#33a6b8; color:#fff; border:none; padding:8px 14px; border-radius:4px; font-size:12px; text-transform:uppercase; cursor:pointer; }
+  button:disabled { opacity:.4; cursor:default; }
+  button:focus-visible { outline:3px solid #ffd54f; outline-offset:2px; }
+  .note { font-size:11px; color:#d6e3ea; font-style:italic; margin-top:12px; }
+  @media (max-width:800px) { .main { flex-direction:column; } .stage { flex:none; width:100%; } .panel { width:100%; } }
+</style>
+</head>
+<body>
+<div class="lab">
+  <h1>Virtual Dissection: Fetal Pig</h1>
+  <div class="main">
+    <div class="stage">
+    <svg id="scene" viewBox="0 0 600 680" role="img" aria-label="Fetal pig, ventral side up, on a dissecting tray with forceps">
+      <defs>
+        <pattern id="fib" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(55)">
+          <rect width="9" height="9" fill="#b94b41"/><line x1="0" y1="0" x2="0" y2="9" stroke="#8f3028" stroke-width="2.2" opacity=".65"/>
+        </pattern>
+        <clipPath id="torso"><path d="M232,200 Q300,190 368,200 Q392,206 392,240 L392,520 Q392,560 372,566 L228,566 Q208,560 208,520 L208,240 Q208,206 232,200Z"/></clipPath>
+        <clipPath id="cL"><path d="M232,200 Q266,195 300,195 L300,566 L228,566 Q208,560 208,520 L208,240 Q208,206 232,200Z"/></clipPath>
+        <clipPath id="cR"><path d="M300,195 Q334,195 368,200 Q392,206 392,240 L392,520 Q392,560 372,566 L300,566Z"/></clipPath>
+        <g id="mart">
+          <rect x="208" y="195" width="184" height="371" fill="#a8413a"/>
+          <path d="M214,215 L296,236 L296,336 L214,330Z" fill="#c2564b" stroke="#8f3028" stroke-width="2"/>
+          <path d="M386,215 L304,236 L304,336 L386,330Z" fill="#c2564b" stroke="#8f3028" stroke-width="2"/>
+          <path d="M296,260 L224,226 M296,282 L222,272 M296,304 L222,314 M304,260 L376,226 M304,282 L378,272 M304,304 L378,314" stroke="#8f3028" stroke-width="2" opacity=".6"/>
+          <rect x="210" y="345" width="76" height="215" fill="url(#fib)"/><rect x="314" y="345" width="76" height="215" fill="url(#fib)"/>
+          <rect x="286" y="345" width="28" height="215" fill="#d27466" stroke="#8f3028" stroke-width="1.5"/>
+          <g stroke="#f4d6cc" stroke-width="2"><line x1="286" y1="392" x2="314" y2="392"/><line x1="286" y1="436" x2="314" y2="436"/><line x1="286" y1="480" x2="314" y2="480"/><line x1="286" y1="522" x2="314" y2="522"/></g>
+        </g>
+      </defs>
+
+      <rect x="10" y="8" width="580" height="664" rx="16" fill="#cfd8dc" stroke="#9fb0b8" stroke-width="3"/>
+
+      <!-- pig, ventral view, head up; the pig's right is on the left of the screen -->
+      <g fill="#e6a999" stroke="#c98876" stroke-width="2">
+        <rect x="168" y="222" width="52" height="74" rx="22" transform="rotate(18 194 259)"/><rect x="380" y="222" width="52" height="74" rx="22" transform="rotate(-18 406 259)"/>
+        <rect x="170" y="520" width="52" height="84" rx="22" transform="rotate(-14 196 562)"/><rect x="378" y="520" width="52" height="84" rx="22" transform="rotate(14 404 562)"/>
+        <path d="M290,560 Q296,620 280,650 Q300,640 310,600 Q312,580 310,560Z"/>
+        <rect x="256" y="130" width="88" height="90" rx="20"/>
+        <ellipse cx="300" cy="92" rx="54" ry="62"/><ellipse cx="300" cy="32" rx="28" ry="24"/>
+        <ellipse cx="238" cy="72" rx="16" ry="26" transform="rotate(-20 238 72)"/><ellipse cx="362" cy="72" rx="16" ry="26" transform="rotate(20 362 72)"/>
+        <path d="M232,200 Q300,190 368,200 Q392,206 392,240 L392,520 Q392,560 372,566 L228,566 Q208,560 208,520 L208,240 Q208,206 232,200Z"/>
+      </g>
+      <circle cx="291" cy="26" r="3.5" fill="#9a5f50"/><circle cx="309" cy="26" r="3.5" fill="#9a5f50"/>
+      <path d="M284,52 Q300,60 316,52" stroke="#9a5f50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+      <!-- body cavity: organs -->
+      <g clip-path="url(#torso)">
+        <rect x="208" y="195" width="184" height="371" fill="#7d3a35"/>
+        <g id="organs"></g>
+      </g>
+
+      <!-- muscle wall halves -->
+      <g id="mflapL"><g clip-path="url(#cL)"><use href="#mart"/></g></g>
+      <g id="mflapR"><g clip-path="url(#cR)"><use href="#mart"/></g></g>
+      <!-- skin flaps -->
+      <path id="flapL" d="M232,200 Q266,195 300,195 L300,566 L228,566 Q208,560 208,520 L208,240 Q208,206 232,200Z" fill="#e6a999" stroke="#c98876" stroke-width="2"/>
+      <path id="flapR" d="M300,195 Q334,195 368,200 Q392,206 392,240 L392,520 Q392,560 372,566 L300,566Z" fill="#e6a999" stroke="#c98876" stroke-width="2"/>
+      <line id="cut" x1="300" y1="195" x2="300" y2="566" stroke="#9a5f50" stroke-width="2" stroke-dasharray="6 5"/>
+      <g id="ring0"><circle cx="293" cy="300" r="9" fill="#ffd54f" stroke="#fff" stroke-width="2"/><circle class="ring" cx="293" cy="300" r="14"/></g>
+      <g id="ring1"><circle cx="307" cy="460" r="9" fill="#ffd54f" stroke="#fff" stroke-width="2"/><circle class="ring" cx="307" cy="460" r="14"/></g>
+
+      <!-- intestines (lift them aside with the forceps) -->
+      <g id="gut" style="display:none"></g>
+
+      <!-- forceps: tip at local (0,0) -->
+      <g id="forceps">
+        <rect x="-16" y="-4" width="32" height="150" fill="transparent"/>
+        <g stroke="#8f9ca5" stroke-width="6" stroke-linecap="round" fill="none">
+          <line id="armL" x1="-7" y1="0" x2="-2" y2="140"/><line id="armR" x1="7" y1="0" x2="2" y2="140"/>
+        </g>
+        <g stroke="#5f6c74" stroke-width="3" stroke-linecap="round"><line x1="-6" y1="2" x2="-6" y2="14"/><line x1="6" y1="2" x2="6" y2="14"/></g>
+        <g stroke="#6b7880" stroke-width="2"><line x1="-6" y1="50" x2="6" y2="50"/><line x1="-5" y1="60" x2="5" y2="60"/><line x1="-5" y1="70" x2="5" y2="70"/></g>
+      </g>
+      <g id="tag" style="display:none;pointer-events:none"><rect id="tagBg" rx="6" height="26" fill="#10344b" opacity=".93"/><text id="tagTx" x="9" y="18" fill="#fff" font-size="15" font-weight="bold" font-family="Arial"></text></g>
+    </svg>
+    </div>
+
+    <div class="panel">
+      <div class="steps" id="steps"></div>
+      <div class="msg" id="msg" aria-live="polite"></div>
+      <div class="box hide" id="mleg">
+        <div><b>Muscles exposed:</b></div>
+        <div><span class="sw" style="background:#c2564b"></span>Pectoral muscles (chest)</div>
+        <div><span class="sw" style="background:#b94b41"></span>External oblique (abdominal wall)</div>
+        <div><span class="sw" style="background:#d27466"></span>Rectus abdominis (along the midline)</div>
+      </div>
+      <div class="box hide" id="oleg">
+        <div><b>Touch an organ with the tip of the forceps.</b></div>
+        <div id="oinfo" aria-live="polite">Nothing touched yet.</div>
+        <div id="chips"></div>
+      </div>
+      <div class="btns">
+        <button id="liftBtn" type="button" disabled>Lift intestines</button>
+        <button id="reset" type="button">Reset dissection</button>
+      </div>
+      <div class="note">Simplified ventral view with the head at the top. The pig&rsquo;s right is on the left of the screen. Positions and sizes are approximate, so follow your lab manual. Works with mouse or touch.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var svg = $('scene'), fp = $('forceps');
+  var REST = { x: 500, y: 300 }, T = 79;
+  var tip = { x: REST.x, y: REST.y }, off = null, grip = null, picked = false, miss = false, seen = {}, cur = null, touching = null;
+
+  function sh(x, y, rx, ry, r) { return '<ellipse cx="' + x + '" cy="' + y + '" rx="' + rx + '" ry="' + ry + '" transform="rotate(' + (r || 0) + ' ' + x + ' ' + y + ')" fill="#fff" opacity=".22"/>'; }
+  var spiral = (function () { var d = ''; for (var i = 0; i <= 60; i++) { var t = i / 60, a = t * 2.6 * 2 * Math.PI, r = 25 - 19 * t; d += (i ? 'L' : 'M') + (358 + r * Math.cos(a)).toFixed(1) + ',' + (522 + r * 0.95 * Math.sin(a)).toFixed(1); } return d; })();
+  var SI = 'M246,502 C262,494 282,494 296,504 S326,518 330,504 C334,520 316,532 296,528 S258,524 250,538 C246,552 270,558 292,552 S320,548 326,534';
+
+  var ORG = [
+    { id: 'kidneys', n: 'Kidneys', f: 'Bean-shaped organs against the back wall that filter blood and make urine. You must lift the intestines to see them.',
+      m: '<g fill="#7d3b30" stroke="#552219" stroke-width="1.5"><ellipse cx="272" cy="522" rx="10" ry="19"/><ellipse cx="328" cy="518" rx="10" ry="19"/></g>' + sh(269, 514, 3, 9) + sh(325, 510, 3, 9) },
+    { id: 'adrenals', n: 'Adrenal glands', f: 'Small, thin glands lying just in front of each kidney. They make hormones such as adrenaline.',
+      m: '<g fill="#d9b88a" stroke="#a9885a" stroke-width="1"><ellipse cx="284" cy="499" rx="3.5" ry="9" transform="rotate(15 284 499)"/><ellipse cx="316" cy="497" rx="3.5" ry="9" transform="rotate(-15 316 497)"/></g>' },
+    { id: 'lungs', n: 'Lungs', f: 'Exchange oxygen and carbon dioxide. One lung lies on each side of the heart, divided into lobes by fissures. They are small and uninflated in a fetal pig.',
+      m: '<g fill="#eaa9a7" stroke="#b97a7a" stroke-width="1.5"><path d="M262,248 Q236,244 226,272 Q220,310 234,336 Q258,342 270,320 Q276,284 262,248Z"/><path d="M338,248 Q364,244 374,272 Q380,310 366,336 Q342,342 330,320 Q324,284 338,248Z"/></g><path d="M240,270 Q256,282 270,284 M232,306 Q252,312 268,312 M360,270 Q344,282 330,284 M368,306 Q348,312 332,312" stroke="#b97a7a" stroke-width="1.4" fill="none"/>' + sh(246, 268, 6, 14, 15) + sh(354, 268, 6, 14, -15) },
+    { id: 'heart', n: 'Heart', f: 'Muscular pump between the lungs. Its pointed tip (apex) points toward the pig\u2019s left and the tail. In the fetus, openings let blood bypass the lungs.',
+      m: '<path d="M268,262 Q298,246 330,258 Q346,290 330,318 Q314,336 302,324 Q264,306 268,262Z" fill="#a33535" stroke="#6d1c1c" stroke-width="1.5"/><ellipse cx="280" cy="264" rx="11" ry="7" fill="#7f2323"/><ellipse cx="322" cy="258" rx="10" ry="7" fill="#7f2323"/><path d="M284,268 Q312,290 322,322" stroke="#d98a5f" stroke-width="2" fill="none"/>' + sh(300, 282, 10, 5, 40) },
+    { id: 'thymus', n: 'Thymus', f: 'Pale, lobed immune gland lying over the front of the heart and extending up the neck. It is large in young animals and shrinks with age.',
+      m: '<path d="M276,206 Q300,196 324,206 Q334,230 318,252 Q300,262 282,252 Q266,230 276,206Z" fill="#efdfc3" stroke="#c4ad84" stroke-width="1.5"/><path d="M300,200 L300,258" stroke="#c4ad84" fill="none"/>' + sh(288, 226, 6, 12, -10) },
+    { id: 'trachea', n: 'Trachea', f: 'The windpipe, held open by rings of cartilage. It carries air from the throat to the lungs.',
+      m: '<rect x="294" y="196" width="12" height="62" rx="6" fill="#f3ead2" stroke="#bfa97c"/><line x1="300" y1="200" x2="300" y2="256" stroke="#bfa97c" stroke-width="8" stroke-dasharray="1.5 4"/>' },
+    { id: 'thyroid', n: 'Thyroid gland', f: 'Small dark gland on the trachea at the base of the neck. It makes hormones that regulate metabolism.',
+      m: '<ellipse cx="300" cy="216" rx="11" ry="6" fill="#8a4a3a" stroke="#5c2e22" stroke-width="1.2"/>' },
+    { id: 'stomach', n: 'Stomach', f: 'Muscular sac on the pig\u2019s left that stores food and starts digestion. Part of it is tucked under the liver.',
+      m: '<path d="M316,396 Q356,388 376,414 Q388,446 366,470 Q336,486 312,466 Q296,440 316,396Z" fill="#e2a99d" stroke="#a9695c" stroke-width="1.5"/><path d="M324,414 Q350,408 370,424 M320,436 Q348,432 372,444" stroke="#b9786b" fill="none"/>' + sh(346, 450, 14, 6, -20) },
+    { id: 'spleen', n: 'Spleen', f: 'Dark red, strap-shaped organ along the left side of the stomach. It filters old red blood cells and stores blood.',
+      m: '<path d="M372,404 Q394,428 388,470 Q380,476 374,468 Q380,438 366,412Z" fill="#74273b" stroke="#4a1626" stroke-width="1.5"/>' },
+    { id: 'liver', n: 'Liver', f: 'The largest abdominal organ, a single dark organ divided into lobes by fissures. It sits just behind the diaphragm and makes bile.',
+      m: '<path d="M222,356 Q300,348 380,356 Q392,392 372,424 Q346,444 322,430 Q300,420 278,432 Q246,446 228,420 Q210,390 222,356Z" fill="#86322a" stroke="#4f1a16" stroke-width="1.5"/><path d="M262,432 Q268,396 282,372 M300,420 Q302,392 300,366 M340,436 Q330,404 322,372" stroke="#4f1a16" stroke-width="1.6" fill="none" opacity=".8"/>' + sh(250, 380, 14, 6, -20) + sh(350, 380, 14, 6, 20) },
+    { id: 'gall', n: 'Gall bladder', f: 'Small green sac on the pig\u2019s right side that stores bile made by the liver.',
+      m: '<ellipse cx="262" cy="438" rx="7" ry="11" transform="rotate(15 262 438)" fill="#4f8a3c" stroke="#2f5a24" stroke-width="1.5"/>' + sh(260, 434, 3, 5) },
+    { id: 'diaphragm', n: 'Diaphragm', f: 'Dome-shaped muscle sheet separating the chest from the abdomen. It drives breathing.',
+      m: '<path d="M214,344 Q300,326 386,344 L386,358 Q300,342 214,358Z" fill="#c98574" stroke="#9c5a4b" stroke-width="1.5"/><path d="M220,350 Q300,334 380,350" stroke="#e8c3b4" stroke-width="4" fill="none" opacity=".7"/>' },
+    { id: 'pancreas', n: 'Pancreas', f: 'Pale, grainy gland behind the stomach beside the small intestine. It makes digestive enzymes and insulin.',
+      m: '<path d="M272,470 Q300,462 340,474 Q352,486 326,490 Q296,494 276,484Z" fill="#f1dcae" stroke="#c4aa72" stroke-width="1.2"/><g fill="#cdb27a" opacity=".7"><circle cx="292" cy="477" r="1.6"/><circle cx="308" cy="480" r="1.6"/><circle cx="324" cy="480" r="1.6"/><circle cx="300" cy="485" r="1.6"/></g>' },
+    { id: 'bladder', n: 'Urinary bladder', f: 'Small sac between the hind legs that holds urine. The umbilical arteries run along its sides.',
+      m: '<path d="M291,538 Q300,528 309,538 Q313,556 300,562 Q287,556 291,538Z" fill="#f1e5c9" stroke="#c4ad84" stroke-width="1.5"/>' + sh(297, 540, 3, 6) },
+    { id: 'cord', n: 'Umbilical cord and vessels', f: 'The cord at the navel carries blood to and from the placenta. The umbilical vein runs forward to the liver; the two arteries pass beside the bladder.',
+      m: '<path d="M300,430 L300,505" stroke="#c9b48a" stroke-width="7" stroke-linecap="round"/><path d="M300,430 L300,505" stroke="#f4ead2" stroke-width="4" stroke-linecap="round"/><path d="M300,505 Q282,525 286,556 M300,505 Q318,525 314,556" stroke="#d8c8a2" stroke-width="3" fill="none"/><circle cx="300" cy="505" r="6" fill="#f4ead2" stroke="#bfa97c" stroke-width="1.5"/>' },
+    { id: 'sint', n: 'Small intestine', gut: 1, f: 'Long coiled tube held by thin, web-like mesentery. Most digestion and nutrient absorption happen here.',
+      m: '<path d="M240,498 Q320,490 334,540 Q300,566 246,556Z" fill="#f5dcd0" opacity=".55"/><path d="' + SI + '" fill="none" stroke="#c78578" stroke-width="15" stroke-linecap="round"/><path d="' + SI + '" fill="none" stroke="#eab3a6" stroke-width="11" stroke-linecap="round"/><path d="' + SI + '" fill="none" stroke="#f9ddd5" stroke-width="3" stroke-linecap="round" opacity=".6"/>' },
+    { id: 'lint', n: 'Large intestine (spiral colon)', gut: 1, f: 'Absorbs water from waste. In the pig it coils into a tight cone on the pig\u2019s left side of the abdomen.',
+      m: '<path d="' + spiral + '" fill="none" stroke="#a8685c" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><path d="' + spiral + '" fill="none" stroke="#d6a89c" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="' + spiral + '" fill="none" stroke="#ecc9bf" stroke-width="2.2" stroke-linecap="round" opacity=".6"/>' }
+  ];
+  function build(list) { return list.map(function (o) { return '<g class="organ" data-id="' + o.id + '">' + o.m + '</g>'; }).join(''); }
+  $('organs').innerHTML = build(ORG.filter(function (o) { return !o.gut; }));
+  $('gut').innerHTML = build(ORG.filter(function (o) { return o.gut; }));
+
+  function layer(id) { return { el: $(id), p: 0, done: false, skin: id.charAt(0) === 'f' }; }
+  var sides = [
+    { dir: -1, hinge: 208, ring: $('ring0'), layers: [layer('flapL'), layer('mflapL')] },
+    { dir: 1, hinge: 392, ring: $('ring1'), layers: [layer('flapR'), layer('mflapR')] }
+  ];
+  var gut = { p: 0, done: false };
+
+  function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
+  function pt(e) { var p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+  function nextLayer(s) { for (var i = 0; i < s.layers.length; i++) if (!s.layers[i].done) return s.layers[i]; return null; }
+  function isOpen() { return sides.every(function (s) { return s.layers[1].done; }); }
+
+  function select(id) {
+    var o = ORG.filter(function (x) { return x.id === id; })[0]; if (!o) return;
+    seen[id] = 1; cur = id; $('oinfo').textContent = o.n + ': ' + o.f;
+    Array.prototype.forEach.call(document.querySelectorAll('.organ'), function (g) { g.classList.toggle('sel', g.getAttribute('data-id') === id); });
+  }
+  function organAt() {
+    var m = svg.getScreenCTM(), els = document.elementsFromPoint(m.a * tip.x + m.e, m.d * tip.y + m.f);
+    for (var i = 0; i < els.length; i++) {
+      var e = els[i];
+      if (fp.contains(e) || (e.closest && e.closest('#tag'))) continue;
+      var g = e.closest && e.closest('.organ');
+      return g ? g.getAttribute('data-id') : null;
+    }
+    return null;
+  }
+  function showTag() {
+    var t = $('tag'), o = ORG.filter(function (x) { return x.id === touching; })[0];
+    if (!o) { t.style.display = 'none'; return; }
+    var w = o.n.length * 8.4 + 18, x = tip.x + 16, y = tip.y - 36;
+    if (x + w > 590) x = tip.x - 16 - w;
+    if (y < 16) y = tip.y + 14;
+    $('tagBg').setAttribute('width', w); $('tagTx').textContent = o.n;
+    t.setAttribute('transform', 'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ')'); t.style.display = '';
+  }
+
+  function draw() {
+    var open = isOpen();
+    $('armL').setAttribute('x1', grip ? -0.6 : -7); $('armR').setAttribute('x1', grip ? 0.6 : 7);
+    fp.setAttribute('transform', 'translate(' + tip.x.toFixed(1) + ',' + tip.y.toFixed(1) + ') rotate(-20)');
+    sides.forEach(function (s) {
+      s.layers.forEach(function (l) {
+        var k = 1 - 0.86 * l.p;
+        l.el.setAttribute('transform', 'translate(' + s.hinge + ',0) scale(' + k.toFixed(3) + ',1) translate(' + (-s.hinge) + ',0)');
+        if (l.skin) l.el.setAttribute('fill', l.p > 0.5 ? '#f3d3c4' : '#e6a999');
+      });
+      s.ring.style.display = (nextLayer(s) && !(grip && grip.side === s)) ? '' : 'none';
+    });
+    $('gut').style.display = open ? '' : 'none';
+    $('gut').setAttribute('transform', 'translate(' + (-95 * gut.p).toFixed(1) + ',' + (12 * gut.p).toFixed(1) + ') rotate(' + (-25 * gut.p).toFixed(1) + ' 340 500)');
+    $('liftBtn').disabled = !open; $('liftBtn').textContent = gut.done ? 'Put intestines back' : 'Lift intestines';
+    var skins = sides.every(function (s) { return s.layers[0].done; });
+    var n = 0; sides.forEach(function (s) { s.layers.forEach(function (l) { if (l.done) n++; }); });
+    var cnt = Object.keys(seen).length, N = ORG.length;
+    $('cut').style.display = skins ? 'none' : '';
+    $('mleg').className = 'box' + (skins && !open ? '' : ' hide');
+    $('oleg').className = 'box' + (open ? '' : ' hide');
+    $('chips').innerHTML = ORG.map(function (o) { return '<span class="chip' + (seen[o.id] ? ' seen' : '') + '">' + (seen[o.id] ? o.n : '?') + '</span>'; }).join('');
+    var names = ['Pick up the forceps', 'Reflect the skin (both sides)', 'Reflect the muscle wall (both sides)', 'Lift the intestines', 'Touch every organ (' + cnt + '/' + N + ')'];
+    var st = [picked, skins, open, gut.done, cnt >= N];
+    $('steps').innerHTML = names.map(function (t, i) { return '<span class="step' + (st[i] ? ' done' : '') + '">' + (st[i] ? '&#10003; ' : (i + 1) + '. ') + t + '</span>'; }).join('');
+    $('msg').textContent = cnt >= N ? 'You identified every organ. Great work!' :
+      grip ? (grip.kind === 'gut' ? 'Holding the intestines. Pull them toward the pig\u2019s right (your left).' : 'Gripping. Keep holding and pull it away from the incision.') :
+      miss ? 'Not far enough. Grip it again and pull farther.' :
+      open ? (gut.done ? 'Intestines lifted. Touch each organ with the forceps tip to identify it.' : 'The body cavity is open. Touch organs to identify them. Lift the intestines to see the organs underneath.') :
+      skins ? 'The skin is back. Now grip the muscle at the midline incision and pull each side back.' :
+      n >= 1 ? 'Good. Now grip the other side of the midline incision.' :
+      picked ? 'Carry the forceps to the midline incision (the dashed line). They grip automatically.' :
+      'Click and drag the forceps from the tray.';
+  }
+
+  fp.addEventListener('pointerdown', function (e) {
+    var p = pt(e); off = { x: tip.x - p.x, y: tip.y - p.y };
+    fp.setPointerCapture(e.pointerId); fp.classList.add('drag'); picked = true; draw(); e.preventDefault();
+  });
+  fp.addEventListener('pointermove', function (e) {
+    if (!off) return;
+    var p = pt(e);
+    tip.x = clamp(p.x + off.x, 0, 600); tip.y = clamp(p.y + off.y, 0, 680);
+    if (grip) {
+      if (grip.kind === 'wall') grip.l.p = clamp(grip.side.dir * (tip.x - grip.startX) / T, 0, 1);
+      else gut.p = clamp((grip.startX - tip.x) / 70, 0, 1);
+    } else if (Math.abs(tip.x - 300) < 18 && tip.y > 205 && tip.y < 560) {
+      var s = sides[tip.x < 300 ? 0 : 1], l = nextLayer(s);
+      if (l) { grip = { kind: 'wall', side: s, l: l, startX: tip.x }; miss = false; }
+    }
+    touching = (grip && grip.kind === 'wall') ? null : organAt();
+    if (!grip && touching && touching !== cur) select(touching);
+    if (!grip && isOpen() && !gut.done && (touching === 'sint' || touching === 'lint')) { grip = { kind: 'gut', startX: tip.x }; miss = false; }
+    showTag(); draw();
+  });
+  function release() {
+    if (!off) return;
+    off = null; fp.classList.remove('drag'); touching = null; showTag();
+    if (grip) {
+      if (grip.kind === 'wall') { if (grip.l.p >= 0.7) { grip.l.p = 1; grip.l.done = true; } else { grip.l.p = 0; miss = true; } }
+      else { if (gut.p >= 0.7) { gut.p = 1; gut.done = true; } else { gut.p = 0; miss = true; } }
+      grip = null;
+    }
+    draw();
+  }
+  fp.addEventListener('pointerup', release);
+  fp.addEventListener('pointercancel', release);
+
+  $('liftBtn').addEventListener('click', function () { gut.done = !gut.done; gut.p = gut.done ? 1 : 0; miss = false; draw(); });
+  $('reset').addEventListener('click', function () {
+    sides.forEach(function (s) { s.layers.forEach(function (l) { l.p = 0; l.done = false; }); });
+    gut.p = 0; gut.done = false;
+    tip = { x: REST.x, y: REST.y }; grip = null; off = null; picked = false; miss = false; seen = {}; cur = null; touching = null; showTag();
+    $('oinfo').textContent = 'Nothing touched yet.';
+    Array.prototype.forEach.call(document.querySelectorAll('.organ'), function (g) { g.classList.remove('sel'); });
+    draw();
+  });
+  draw();
+})();
+</script>
+</body>
+</html>
